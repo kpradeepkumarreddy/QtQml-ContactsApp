@@ -30,7 +30,6 @@ public:
     QList<Contact> contactsList;
 
 private:
-    int getIndexOf(const Contact& contact);
     void refreshRemovedEntries(QList<Contact> &l1, QList<Contact> &l2);
     void refreshAddedEntries(QList<Contact> &l1, QList<Contact> &l2);
     void refreshModifiedEntries(QList<Contact> &l1, QList<Contact> &l2);

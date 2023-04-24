@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.test" android:installLocation="auto" android:versionCode="-- %%INSERT_VERSION_CODE%% --" android:versionName="-- %%INSERT_VERSION_NAME%% --">
    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+   <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
 
 
     <!-- %%INSERT_FEATURES -->

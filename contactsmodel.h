@@ -13,7 +13,7 @@ public:
 
     enum{
         NameRole = Qt::UserRole,
-        PhoneNumberRole
+        PhoneNumberRole = Qt::EditRole
     };
 
     // Basic functionality:
@@ -23,9 +23,17 @@ public:
 
     virtual QHash<int, QByteArray> roleNames() const override;
 
+    bool setData(const QModelIndex &index, const QVariant &value, int role) override;
+
     Q_INVOKABLE void populate(std::list<Contact> contacts);
 
     QList<Contact> contactsList;
+
+private:
+    int getIndexOf(const Contact& contact);
+    void refreshRemovedEntries(QList<Contact> &l1, QList<Contact> &l2);
+    void refreshAddedEntries(QList<Contact> &l1, QList<Contact> &l2);
+    void refreshModifiedEntries(QList<Contact> &l1, QList<Contact> &l2);
 };
 
 #endif // CONTACTSMODEL_H

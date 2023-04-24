@@ -18,6 +18,8 @@ import android.net.Uri;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONException;
+import android.os.RemoteException;
+import java.util.Collection;
 
 
  public class ContactsActivity extends QtActivity {
@@ -25,6 +27,7 @@ import org.json.JSONException;
     native void onContactsReceived(String contacts);
 
     private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
+    private static final int PERMISSIONS_REQUEST_WRITE_CONTACTS = 101;
 
     private ContactsObserver contactsObserver = this.new ContactsObserver(new Handler());
 
@@ -58,6 +61,12 @@ import org.json.JSONException;
            } else {
                Toast.makeText(this, "Until you grant the permission, we cannot display the names", Toast.LENGTH_SHORT).show();
            }
+       }else if(requestCode == PERMISSIONS_REQUEST_WRITE_CONTACTS){
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                addDummyContacts();
+            } else {
+                Toast.makeText(this, "Until you grant the permission, we cannot write to contacts", Toast.LENGTH_SHORT).show();
+            }
        }
    }
 
@@ -108,5 +117,54 @@ import org.json.JSONException;
         public void onChange(boolean selfChange, Uri uri){
             onContactsReceived(fetchContacts());
         }
+    }
+
+    void writeContacts(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+            checkSelfPermission(Manifest.permission.WRITE_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+             requestPermissions(new String[]{Manifest.permission.WRITE_CONTACTS}, PERMISSIONS_REQUEST_WRITE_CONTACTS);
+        }else{
+            addDummyContacts();
+         }
+    }
+
+    void addDummyContacts(){
+        for(int i=0; i<1000; i++){
+            ArrayList<ContentProviderOperation> contentProviderOperations
+                        = new ArrayList<ContentProviderOperation>();
+
+                contentProviderOperations.add(ContentProviderOperation.newInsert(
+                        ContactsContract.RawContacts.CONTENT_URI)
+                        .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
+                        .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)
+                        .build());
+
+                // Adding Name
+                contentProviderOperations.add(ContentProviderOperation
+                        .newInsert(ContactsContract.Data.CONTENT_URI)
+                        .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                        .withValue(ContactsContract.Data.MIMETYPE,
+                                ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+                        .withValue(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME, "test-"+i)
+                        .build());
+
+                // Adding Number
+                contentProviderOperations.add(ContentProviderOperation
+                        .newInsert(ContactsContract.Data.CONTENT_URI)
+                        .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                        .withValue(ContactsContract.Data.MIMETYPE,
+                                ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+                        .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, "0"+i)
+                        .withValue(ContactsContract.CommonDataKinds.Phone.TYPE,
+                                ContactsContract.CommonDataKinds.Phone.TYPE_WORK)
+                        .build());
+                try {
+                    getContentResolver().applyBatch(ContactsContract.AUTHORITY, contentProviderOperations);
+                } catch (OperationApplicationException e) {
+                    e.printStackTrace();
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
     }
 }

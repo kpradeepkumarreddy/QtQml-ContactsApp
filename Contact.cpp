@@ -20,7 +20,12 @@ public:
     void setPhoneNumber(const QString &newPhoneNumber){
         phoneNumber = newPhoneNumber;
     }
-
+    bool operator< (const Contact& contact) const{
+        return this->name < contact.name;
+    }
+    bool operator== (const Contact& contact) const{
+        return (this->name == contact.name);
+    }
 private:
     QString name;
     QString phoneNumber;

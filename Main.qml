@@ -16,7 +16,7 @@ Window {
         anchors{fill: parent; leftMargin:20}
         clip:true
         boundsBehavior: Flickable.StopAtBounds
-        spacing:5
+        spacing:10
         model:contactsModel
         delegate: Column{
             Text{text:model.name; font.pointSize:25}
